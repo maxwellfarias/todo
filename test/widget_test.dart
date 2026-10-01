@@ -64,6 +64,26 @@ void main() {
     expect(viewModel.tasks.last.isDone, isTrue);
   });
 
+  testWidgets('reordena tarefas sem alterar a árvore durante o layout', (
+    tester,
+  ) async {
+    final viewModel = TaskViewModel();
+    await tester.pumpWidget(_testApp(viewModel));
+
+    await tester.tap(find.text('Estudar Flutter').first);
+    await tester.pumpAndSettle();
+
+    await tester.drag(
+      find.byIcon(Icons.drag_indicator).first,
+      const Offset(0, 400),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(viewModel.tasks.map((task) => task.id), [2, 1]);
+    expect(find.byKey(const Key('task-description-field')), findsNothing);
+  });
+
   testWidgets('exclui tarefa somente após confirmação', (tester) async {
     final viewModel = TaskViewModel();
     await tester.pumpWidget(_testApp(viewModel));

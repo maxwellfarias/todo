@@ -129,6 +129,17 @@ class _TodoScreenState extends State<TodoScreen> {
     context.read<TaskViewModel>().toggleDone(task.id);
   }
 
+  void _reorderTask(int oldIndex, int newIndex) {
+    // ReorderableListView invokes this callback before it removes its drag
+    // overlay. Rebuilding an open editor at that point mutates LayoutBuilder
+    // while the overlay is still performing layout.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _commitEditor();
+      context.read<TaskViewModel>().reorderTask(oldIndex, newIndex);
+    });
+  }
+
   Future<void> _pickDate() async {
     final date = await showDatePicker(
       context: context,
@@ -346,10 +357,7 @@ class _TodoScreenState extends State<TodoScreen> {
                                 physics: const NeverScrollableScrollPhysics(),
                                 buildDefaultDragHandles: false,
                                 itemCount: viewModel.tasks.length,
-                                onReorderItem: (oldIndex, newIndex) {
-                                  _commitEditor();
-                                  viewModel.reorderTask(oldIndex, newIndex);
-                                },
+                                onReorderItem: _reorderTask,
                                 itemBuilder: (context, index) {
                                   final task = viewModel.tasks[index];
                                   final isEditing =
