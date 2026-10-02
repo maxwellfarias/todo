@@ -36,7 +36,7 @@ estado inicial quando o aplicativo é reiniciado.
 
 - [Flutter](https://flutter.dev/) e Dart;
 - Material Design 3;
-- [Provider](https://pub.dev/packages/provider) para gerenciamento de estado;
+- `ChangeNotifier` e `ListenableBuilder` para gerenciamento de estado;
 - `flutter_localizations` para localização em português;
 - testes unitários, de widgets e golden tests.
 
@@ -105,9 +105,9 @@ assets/                      # Mídias usadas na documentação
 ```
 
 A apresentação segue MVVM: os widgets observam o `TaskViewModel`, que concentra
-as alterações de estado, enquanto `TaskModel` representa o domínio. O Provider
-faz a disponibilização e a atualização reativa desse estado na árvore de
-widgets.
+as alterações de estado, enquanto `TaskModel` representa o domínio. O ViewModel
+é injetado pelo construtor e suas atualizações são observadas diretamente com
+`ListenableBuilder`.
 
 ## Documentação
 

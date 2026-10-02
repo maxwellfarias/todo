@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:todo/core/theme/app_theme.dart';
 import 'package:todo/ui/tasks/viewmodel/task_view_model.dart';
 import 'package:todo/ui/tasks/widgets/todo_screen.dart';
@@ -22,6 +21,20 @@ void main() {
     expect(find.text('Hoje'), findsOneWidget);
     expect(find.text('Amanhã'), findsOneWidget);
     expect(find.text('01 out. 2026'), findsOneWidget);
+  });
+
+  testWidgets('reage diretamente às notificações do TaskViewModel', (
+    tester,
+  ) async {
+    final viewModel = TaskViewModel();
+    await tester.pumpWidget(_testApp(viewModel));
+
+    expect(find.byIcon(Icons.star), findsNothing);
+
+    viewModel.toggleFavorite(1);
+    await tester.pump();
+
+    expect(find.byIcon(Icons.star), findsOneWidget);
   });
 
   testWidgets('cria tarefa e descarta rascunho vazio', (tester) async {
@@ -76,6 +89,24 @@ void main() {
     await tester.drag(
       find.byIcon(Icons.drag_indicator).first,
       const Offset(0, 400),
+    );
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(viewModel.tasks.map((task) => task.id), [2, 1]);
+    expect(find.byKey(const Key('task-description-field')), findsNothing);
+  });
+
+  testWidgets('move a segunda tarefa para a primeira posição', (tester) async {
+    final viewModel = TaskViewModel();
+    await tester.pumpWidget(_testApp(viewModel));
+
+    await tester.tap(find.text('Tarefa 02'));
+    await tester.pumpAndSettle();
+
+    await tester.drag(
+      find.byIcon(Icons.drag_indicator).at(1),
+      const Offset(0, -200),
     );
     await tester.pumpAndSettle();
 
@@ -143,20 +174,17 @@ Widget _testApp(
   TaskViewModel viewModel, {
   ThemeMode themeMode = ThemeMode.dark,
 }) {
-  return ChangeNotifierProvider.value(
-    value: viewModel,
-    child: MaterialApp(
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: themeMode,
-      locale: const Locale('pt', 'BR'),
-      supportedLocales: const [Locale('pt', 'BR')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: const TodoScreen(),
-    ),
+  return MaterialApp(
+    theme: AppTheme.light,
+    darkTheme: AppTheme.dark,
+    themeMode: themeMode,
+    locale: const Locale('pt', 'BR'),
+    supportedLocales: const [Locale('pt', 'BR')],
+    localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    home: TodoScreen(viewModel: viewModel),
   );
 }

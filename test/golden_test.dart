@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
 import 'package:todo/core/theme/app_theme.dart';
 import 'package:todo/ui/tasks/viewmodel/task_view_model.dart';
 import 'package:todo/ui/tasks/widgets/todo_screen.dart';
@@ -34,20 +33,17 @@ void main() {
 }
 
 Widget _goldenApp() {
-  return ChangeNotifierProvider(
-    create: (_) => TaskViewModel(),
-    child: MaterialApp(
-      theme: AppTheme.light,
-      darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.dark,
-      locale: const Locale('pt', 'BR'),
-      supportedLocales: const [Locale('pt', 'BR')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      home: const TodoScreen(),
-    ),
+  return MaterialApp(
+    theme: AppTheme.light,
+    darkTheme: AppTheme.dark,
+    themeMode: ThemeMode.dark,
+    locale: const Locale('pt', 'BR'),
+    supportedLocales: const [Locale('pt', 'BR')],
+    localizationsDelegates: const [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    home: TodoScreen(viewModel: TaskViewModel()),
   );
 }
