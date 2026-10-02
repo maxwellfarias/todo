@@ -106,7 +106,7 @@ void main() {
 
     await tester.drag(
       find.byIcon(Icons.drag_indicator).at(1),
-      const Offset(0, -200),
+      const Offset(0, -500),
     );
     await tester.pumpAndSettle();
 

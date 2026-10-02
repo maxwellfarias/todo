@@ -131,13 +131,18 @@ class _TodoScreenState extends State<TodoScreen> {
   }
 
   void _reorderTask(int oldIndex, int newIndex) {
-    // ReorderableListView invokes this callback before it removes its drag
-    // overlay. Rebuilding an open editor at that point mutates LayoutBuilder
-    // while the overlay is still performing layout.
+    // ReorderableListView invokes this callback before fully removing its drag
+    // overlay. Close the editor after that frame, then reorder only after the
+    // editor's rebuild has also completed. Keeping those mutations in separate
+    // frames prevents the overlay from being reparented during layout.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _commitEditor();
-      widget.viewModel.reorderTask(oldIndex, newIndex);
+      if (!_commitEditor()) return;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        widget.viewModel.reorderTask(oldIndex, newIndex);
+      });
     });
   }
 
